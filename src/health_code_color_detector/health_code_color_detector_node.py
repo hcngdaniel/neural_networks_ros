@@ -27,6 +27,9 @@ result_pub = rospy.Publisher("/neural_networks/results/hccd", BoundingBoxes, que
 
 
 def img_callback(msg: Image):
+    if 'hccd' not in msg.header.frame_id.split(' '):
+        return
+
     global model, result_pub
     cv2_image = CvBridge().imgmsg_to_cv2(msg, "bgr8")
     result_pub_msg = BoundingBoxes()
