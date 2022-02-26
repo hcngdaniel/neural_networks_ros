@@ -42,7 +42,7 @@ def img_callback(msg: Image):
         img = cv2_image[top:top + height, left:left + width, :].copy()
         if img.any():
             imgs.append(img)
-            result_pub_msg.boxes.append(BoundingBox(left, top, left + width, top + height, -1, ""))
+            result_pub_msg.boxes.append(BoundingBox(left, top, left + width, top + height, -1, "", [0.0, 0.0, 0.0]))
     if len(imgs) == 0:
         result_pub.publish(result_pub_msg)
         return
@@ -62,6 +62,7 @@ def img_callback(msg: Image):
         class_id = np.argmax(result)
         result_pub_msg.boxes[idx].class_id = class_id
         result_pub_msg.boxes[idx].class_name = ["red", "yellow", "green"][class_id]
+        result_pub_msg.boxes[idx].conf = list(result)
 
     result_pub.publish(result_pub_msg)
 
