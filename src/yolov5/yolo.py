@@ -14,10 +14,11 @@ os.chdir(os.path.dirname(__file__))
 os.environ['TORCH_HOME'] = '.'
 
 rospy.init_node('yolov5')
+yolo_type = rospy.get_param('yolo_type', 'yolov5l')
 result_pub = rospy.Publisher('/neural_networks/results/yolov5', BoundingBoxes, queue_size=1)
 bridge = CvBridge()
 
-yolo = torch.hub.load('ultralytics/yolov5', 'yolov5l', pretrained=True)
+yolo = torch.hub.load('ultralytics/yolov5', yolo_type, pretrained=True)
 
 
 def img_callback(msg):
