@@ -69,4 +69,5 @@ def img_callback(msg: Image):
 
 img_sub = rospy.Subscriber("/neural_networks/image", Image, img_callback)
 
+rospy.loginfo('ready')
 rospy.spin()

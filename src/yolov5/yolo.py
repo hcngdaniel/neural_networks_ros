@@ -2,6 +2,7 @@
 import os
 import cv2
 import rospy
+import argparse
 from cv_bridge import CvBridge
 
 from sensor_msgs.msg import Image
@@ -13,12 +14,19 @@ import torch
 os.chdir(os.path.dirname(__file__))
 os.environ['TORCH_HOME'] = '.'
 
+parser = argparse.ArgumentParser()
+parser.add_argument_group()
+parser.add_argument('--model', '-m', metavar='yolo_model_type', default='yolov5l', type=str,
+                    help='the model type of yolo, default yolov5l')
+args = parser.parse_args()
+
 rospy.init_node('yolov5')
-yolo_type = rospy.get_param('yolo_type', 'yolov5l')
+
 result_pub = rospy.Publisher('/neural_networks/results/yolov5', BoundingBoxes, queue_size=1)
 bridge = CvBridge()
 
-yolo = torch.hub.load('ultralytics/yolov5', yolo_type, pretrained=True)
+yolo = torch.hub.load('ultralytics/yolov5', args.model, pretrained=True)
+rospy.loginfo(f"using {args.model}")
 
 
 def img_callback(msg):
