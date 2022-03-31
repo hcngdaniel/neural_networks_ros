@@ -12,6 +12,7 @@ find_package(catkin REQUIRED COMPONENTS
   rospy
   std_msgs
   message_generation
+  geometry_msgs
 )
 
 ## System dependencies are found with CMake's conventions
@@ -52,6 +53,7 @@ add_message_files(
   FILES
   BoundingBox.msg
   BoundingBoxes.msg
+  HumanPose.msg
 )
 
 ## Generate services in the 'srv' folder
@@ -68,6 +70,7 @@ add_message_files(
 generate_messages(
   DEPENDENCIES
   std_msgs
+  geometry_msgs
   neural_networks
 )
 
@@ -105,7 +108,7 @@ catkin_package(
 #  LIBRARIES neural_networks
 #  CATKIN_DEPENDS roscpp rospy std_msgs
 #  DEPENDS system_lib
-   CATKIN_DEPENDS rospy std_msgs message_runtime
+   CATKIN_DEPENDS rospy std_msgs message_runtime geometry_msgs
 )
 
 ###########
@@ -202,4 +205,4 @@ include_directories(
 # endif()
 
 ## Add folders to be run by python nosetests
-# catkin_add_nosetests(test)
+# catkin_add_nosetests(test):
