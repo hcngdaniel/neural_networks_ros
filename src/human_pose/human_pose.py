@@ -10,7 +10,8 @@ import mediapipe as mp
 
 
 model = mp.solutions.pose.Pose(
-    static_image_mode=True,
+    static_image_mode=False,
+    smooth_landmarks=True,
     min_detection_confidence=0.5
 )
 model.__enter__()
