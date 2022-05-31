@@ -18,6 +18,7 @@ from model import Model
 
 device = "cuda" if torch.cuda.is_available() else "cpu"
 
+detector = cv2.QRCodeDetector()
 model = Model()
 model.load_state_dict(torch.load(f'{os.path.dirname(__file__)}/model.pth', map_location=torch.device(device)))
 model.eval()
@@ -35,17 +36,15 @@ def img_callback(msg: Image):
     result_pub_msg = BoundingBoxes()
     result_pub_msg.header.frame_id = msg.header.frame_id
 
-    decoded: typing.List[pyzbar.pyzbar.Decoded] = pyzbar.pyzbar.decode(cv2_image)
-    imgs = []
-    for result in decoded:
-        left, top, width, height = result.rect
-        img = cv2_image[top:top + height, left:left + width, :].copy()
-        if img.any():
-            imgs.append(img)
-            result_pub_msg.boxes.append(BoundingBox(left, top, left + width, top + height, -1, "", [0.0, 0.0, 0.0]))
-    if len(imgs) == 0:
+    decoded_text, points, _ = detector.detectAndDecode(cv2_image)
+    # decoded: typing.List[pyzbar.pyzbar.Decoded] = pyzbar.pyzbar.decode(cv2_image)
+    if points is None:
         result_pub.publish(result_pub_msg)
         return
+    left, right = max([points[i][0][0] for i in range(len(points))]), min([points[i][0][0] for i in range(len(points))])
+    top, bottom = max([points[i][0][1] for i in range(len(points))]), min([points[i][0][1] for i in range(len(points))])
+    print(cv2_image)
+    imgs = [cv2_image[left:right, top:bottom, :]]
 
     blob = cv2.dnn.blobFromImages(
         images=imgs,
