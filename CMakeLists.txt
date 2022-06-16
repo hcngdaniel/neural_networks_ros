@@ -54,6 +54,7 @@ add_message_files(
   BoundingBox.msg
   BoundingBoxes.msg
   HumanPose.msg
+  StringWithHeader.msg
 )
 
 ## Generate services in the 'srv' folder

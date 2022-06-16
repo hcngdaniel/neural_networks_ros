@@ -2,6 +2,7 @@
 import os
 import cv2
 import rospy
+import time
 import argparse
 from cv_bridge import CvBridge
 
@@ -22,7 +23,7 @@ args = parser.parse_args()
 
 rospy.init_node('yolov5')
 
-result_pub = rospy.Publisher('/neural_networks/results/yolov5', BoundingBoxes, queue_size=1)
+result_pub = rospy.Publisher('/neural_networks/results/yolov5', BoundingBoxes, queue_size=10)
 bridge = CvBridge()
 
 yolo = torch.hub.load('ultralytics/yolov5', args.model, pretrained=True)
@@ -32,6 +33,7 @@ rospy.loginfo(f"using {args.model}")
 def img_callback(msg):
     if 'yolov5' not in msg.header.frame_id.split(' '):
         return
+    print('hi')
 
     img = bridge.imgmsg_to_cv2(msg, 'bgr8')
     imgs = [cv2.cvtColor(img, cv2.COLOR_BGR2RGB)]
@@ -50,7 +52,11 @@ def img_callback(msg):
         box_msg.class_name = result['name']
         box_msg.conf = [max(0, result['confidence'])]
         pub_msg.boxes.append(box_msg)
-    result_pub.publish(pub_msg)
+    print(pub_msg)
+    start = time.time()
+    while time.time() - start < 0.1:
+        result_pub.publish(pub_msg)
+    print('sent')
 
 
 rospy.Subscriber('/neural_networks/image', Image, img_callback)

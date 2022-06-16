@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 import os
+import time
 import typing
 import cv2
 import numpy as np
@@ -7,7 +8,7 @@ import numpy as np
 import rospy
 from cv_bridge import CvBridge
 
-from std_msgs.msg import String
+from neural_networks.msg import StringWithHeader
 from sensor_msgs.msg import Image
 
 import pyzbar.pyzbar
@@ -24,11 +25,16 @@ model.load_state_dict(torch.load(f'{os.path.dirname(__file__)}/model.pth', map_l
 model.eval()
 
 rospy.init_node("hccd")
-result_pub = rospy.Publisher("/neural_networks/results/hccd", String, queue_size=1)
+result_pub = rospy.Publisher("/neural_networks/results/hccd", StringWithHeader, queue_size=1)
 
 
 def img_callback(msg: Image):
+    if "hccd" not in msg.header.frame_id.split(' '):
+        return
+
     cv2img = CvBridge().imgmsg_to_cv2(msg, "bgr8")
+    pub_msg = StringWithHeader()
+    pub_msg.header.frame_id = msg.header.frame_id
 
     blob = cv2.dnn.blobFromImage(
         image=cv2img,
@@ -44,8 +50,11 @@ def img_callback(msg: Image):
 
     class_id = np.argmax(result)
     class_name = ["red", "yellow", "green"][class_id]
+    pub_msg.data = class_name
 
-    result_pub.publish(class_name)
+    start = time.time()
+    while time.time() - start < 0.1:
+        result_pub.publish(class_name)
 
 
 img_sub = rospy.Subscriber("/neural_networks/image", Image, img_callback)
