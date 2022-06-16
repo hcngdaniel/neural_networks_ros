@@ -19,7 +19,7 @@ result_sub = rospy.Subscriber("/neural_networks/results/hccd", BoundingBoxes, ca
 boxes = []
 result_frame_id = None
 
-cap = cv2.VideoCapture(0)
+cap = cv2.VideoCapture()
 while cap.isOpened():
     ret, frame = cap.read()
 
